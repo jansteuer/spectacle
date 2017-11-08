@@ -1,5 +1,6 @@
 var path = require('path'),
-  _ = require('lodash')
+  _ = require('lodash'),
+common = require('./common')
 
 var httpMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', '$ref'];
 
@@ -57,6 +58,12 @@ module.exports = function(options, specData) {
         // Join parameters with path-parameters
         operation.parameters = (operation.parameters || [])
           .concat(pathParameters)
+          .map(function(param) {
+            if (param.$ref) {
+              return common.resolveSchemaReference(param.$ref, copy);
+            }
+            return param;
+          })
           .filter(function(param) {
             if (param.in === 'body') {
               operation._request_body = param
